@@ -11,12 +11,12 @@ def create_type_library(log: Logger, bv: BinaryView, func_list: list[Function], 
     typelib = TypeLibrary.new(bv.arch, os.path.basename(bv.file.filename))
     typelib.add_platform(bv.platform)
 
-    if "alternate_names" not in config:
+    if "alternate_names" in config:
         name_list = [name.strip() for name in config["alternate_names"].split(";")]
         for name in name_list:
             typelib.add_alternate_name(name)
 
-    if "dependency_name" not in config:
+    if "dependency_name" in config:
         typelib.dependency_name = config["dependency_name"]
     log.log_debug(f"Exporting {len(func_list)} functions to a type library")
     for func in func_list:
