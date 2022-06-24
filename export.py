@@ -50,8 +50,8 @@ def get_config_options(bv: BinaryView):
 def export_functions(bv: BinaryView):
     log = bv.create_logger("TypeLib_Exporter")
     config = get_config_options(bv)
-    if not os.path.exists(config['export_path']):
-        log.log_error("Please specify a path to export the type library")
+    if not os.path.exists(os.path.dirname(config['export_path'])):
+        log.log_error(f"Please specify a path to export the type library: {config['export_path']}")
         return
 
     func_list = bv.get_symbols_of_type(SymbolType.FunctionSymbol)
