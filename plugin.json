@@ -1,6 +1,6 @@
 {
   "pluginmetadataversion": 2,
-  "name": "BN TypeLib Exporter",
+  "name": "TypeLib Exporter",
   "type": [
     "ui",
     "binaryview",
@@ -19,7 +19,18 @@
     "Linux",
     "Windows"
   ],
-  "version": "1.0.0",
+  "installinstructions": {
+    "Darwin": "",
+    "Linux": "",
+    "Windows": ""
+  },
+  "dependencies": {
+    "pip": [],
+    "apt": [],
+    "installers": [],
+    "other": []
+  },
+  "version": "1.1.0",
   "author": "Scott Lagler",
   "minimumbinaryninjaversion": 3469
 }
