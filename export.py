@@ -50,7 +50,7 @@ def get_config_options(bv: BinaryView):
 def export_functions(bv: BinaryView):
     log = bv.create_logger("TypeLib_Exporter")
     config = get_config_options(bv)
-    if not os.path.exists(os.path.dirname(config['export_path'])):
+    if not os.path.exists(os.path.dirname(os.path.expanduser(config['export_path']))):
         log.log_error(f"Please specify a path to export the type library: {config['export_path']}")
         return
 
