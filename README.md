@@ -1,4 +1,4 @@
-# BN TypeLib Exporter
+# TypeLib Exporter
 
 This plugin compiles exported functions and its corresponding types into a Binary Ninja type library. It can also load
 and apply
