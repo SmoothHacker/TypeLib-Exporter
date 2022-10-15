@@ -43,7 +43,7 @@ def get_config_options(bv: BinaryView):
     dependency_name = bn.TextLineField("Dependency Name (optional):")
     bn.get_form_input([lib_name, alternate_names, export_path, dependency_name], "Export as Type Library Options")
 
-    config = {"lib_name": lib_name.result, "alternate_names": alternate_names.result, "export_path": export_path.result,
+    config = {"lib_name": lib_name.result, "alternate_names": alternate_names.result, "export_path": os.path.expanduser(export_path.result),
               "dependency_name": dependency_name.result}
     return config
 
@@ -51,7 +51,7 @@ def get_config_options(bv: BinaryView):
 def export_functions(bv: BinaryView):
     log = bv.create_logger("TypeLib_Exporter")
     config = get_config_options(bv)
-    if not os.path.exists(os.path.dirname(os.path.expanduser(config['export_path']))):
+    if not os.path.exists(os.path.dirname(config['export_path'])):
         log.log_error(f"Please specify a path to export the type library: {config['export_path']}")
         return
     if len(config["lib_name"]) == 0:
@@ -69,4 +69,4 @@ def export_functions(bv: BinaryView):
     typelib = create_type_library(log, bv, export_funcs, config)
     typelib.finalize()
     log.log_info(f"Exported {len(export_funcs)} functions to {config['export_path']}")
-    typelib.write_to_file(os.path.expanduser(config['export_path']))
+    typelib.write_to_file(config['export_path'])
