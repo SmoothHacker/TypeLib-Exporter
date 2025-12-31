@@ -4,7 +4,7 @@ import binaryninja as bn
 from binaryninja import BinaryView
 from binaryninja import CoreSymbol, Logger
 from binaryninja import SymbolType, SymbolBinding
-from binaryninja import TypeLibrary, Function
+from binaryninja import TypeLibrary, Function, Metadata
 
 
 def create_type_library(
@@ -20,9 +20,19 @@ def create_type_library(
 
     if "dependency_name" in config:
         typelib.dependency_name = config["dependency_name"]
-    log.log_debug(f"Exporting {len(func_list)} functions to a type library")
+
+    log.log_info(f'Exporting {len(export_func_syms)} ordinals to type library')
+    ordinals = {sym.ordinal: sym.name for sym in export_func_syms}
+    typelib.store_metadata('ordinals', Metadata(ordinals))
+
+    func_list = get_funcs_from_syms(log, bv, export_func_syms)
+    log.log_debug(f"Exporting {len(func_list)} functions to type library")
+
     for func in func_list:
-        bv.export_object_to_library(typelib, func.name, func.function_type)
+        bv.export_object_to_library(typelib, func.name, func.type)
+
+    log.log_info(f"Exported {len(func_list)} functions to {config['export_path']}")
+
     return typelib
 
 
@@ -86,10 +96,7 @@ def export_functions(bv: BinaryView):
         if sym.binding in (SymbolBinding.GlobalBinding, SymbolBinding.WeakBinding)
     ]
 
-    export_funcs = get_funcs_from_syms(log, bv, export_func_syms)
-    log.log_debug(f"Discovered {len(export_funcs)} exported functions")
-
-    typelib = create_type_library(log, bv, export_funcs, config)
+    typelib = create_type_library(log, bv, export_func_syms, config)
     typelib.finalize()
     log.log_info(f"Exported {len(export_funcs)} functions to {config['export_path']}")
     typelib.write_to_file(config["export_path"])
