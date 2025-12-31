@@ -14,6 +14,3 @@ current binary view and any successive binary view in the current session.
 A potential workflow for this plugin would be to compile an open source library with debug information, load it into
 Binary Ninja,
 run the debug info parser, and export it to a type library.
-
-## Future Plans
-- [ ] Headless support
