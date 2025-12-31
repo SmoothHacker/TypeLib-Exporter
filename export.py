@@ -7,7 +7,9 @@ from binaryninja import SymbolType, SymbolBinding
 from binaryninja import TypeLibrary, Function
 
 
-def create_type_library(log: Logger, bv: BinaryView, func_list: list[Function], config: dict) -> TypeLibrary:
+def create_type_library(
+    log: Logger, bv: BinaryView, func_list: list[Function], config: dict
+) -> TypeLibrary:
     typelib = TypeLibrary.new(bv.arch, config["lib_name"])
     typelib.add_platform(bv.platform)
 
@@ -24,12 +26,16 @@ def create_type_library(log: Logger, bv: BinaryView, func_list: list[Function], 
     return typelib
 
 
-def get_funcs_from_syms(log: Logger, bv: BinaryView, func_syms: list[CoreSymbol]) -> list[Function]:
+def get_funcs_from_syms(
+    log: Logger, bv: BinaryView, func_syms: list[CoreSymbol]
+) -> list[Function]:
     func_list = []
     for sym in func_syms:
         res = bv.get_function_at(sym.address)
         if res is None:
-            log.log_warn(f"Function: {sym.name} at address: {sym.address} does not exist in the current binary view")
+            log.log_warn(
+                f"Function: {sym.name} at address: {sym.address} does not exist in the current binary view"
+            )
         else:
             func_list.append(res)
 
@@ -37,22 +43,36 @@ def get_funcs_from_syms(log: Logger, bv: BinaryView, func_syms: list[CoreSymbol]
 
 
 def get_config_options(bv: BinaryView):
-    lib_name = bn.TextLineField("Type Library Name:", f"{os.path.basename(bv.file.filename)}")
-    alternate_names = bn.TextLineField("Alternative Names (optional):", "lib_musl.so;lib_musl.so.5")
-    export_path = bn.TextLineField("Path to store type library:", f"~/{os.path.basename(bv.file.filename)}.bntl")
+    lib_name = bn.TextLineField(
+        "Type Library Name:", f"{os.path.basename(bv.file.filename)}"
+    )
+    alternate_names = bn.TextLineField(
+        "Alternative Names (optional):", "lib_musl.so;lib_musl.so.5"
+    )
+    export_path = bn.TextLineField(
+        "Path to store type library:", f"~/{os.path.basename(bv.file.filename)}.bntl"
+    )
     dependency_name = bn.TextLineField("Dependency Name (optional):")
-    bn.get_form_input([lib_name, alternate_names, export_path, dependency_name], "Export as Type Library Options")
+    bn.get_form_input(
+        [lib_name, alternate_names, export_path, dependency_name],
+        "Export as Type Library Options",
+    )
 
-    config = {"lib_name": lib_name.result, "alternate_names": alternate_names.result, "export_path": os.path.expanduser(export_path.result),
-              "dependency_name": dependency_name.result}
-    return config
+    return {
+        "lib_name": lib_name.result,
+        "alternate_names": alternate_names.result,
+        "export_path": os.path.expanduser(export_path.result),
+        "dependency_name": dependency_name.result,
+    }
 
 
 def export_functions(bv: BinaryView):
     log = bv.create_logger("TypeLib_Exporter")
     config = get_config_options(bv)
-    if not os.path.exists(os.path.dirname(config['export_path'])):
-        log.log_error(f"Please specify a path to export the type library: {config['export_path']}")
+    if not os.path.exists(os.path.dirname(config["export_path"])):
+        log.log_error(
+            f"Please specify a path to export the type library: {config['export_path']}"
+        )
         return
     if len(config["lib_name"]) == 0:
         log.log_error(f"lib name: [{config['lib_name']}]")
@@ -60,8 +80,11 @@ def export_functions(bv: BinaryView):
         return
 
     func_list = bv.get_symbols_of_type(SymbolType.FunctionSymbol)
-    export_func_syms = [sym for sym in func_list
-                        if sym.binding == SymbolBinding.GlobalBinding or sym.binding == SymbolBinding.WeakBinding]
+    export_func_syms = [
+        sym
+        for sym in func_list
+        if sym.binding in (SymbolBinding.GlobalBinding, SymbolBinding.WeakBinding)
+    ]
 
     export_funcs = get_funcs_from_syms(log, bv, export_func_syms)
     log.log_debug(f"Discovered {len(export_funcs)} exported functions")
@@ -69,4 +92,4 @@ def export_functions(bv: BinaryView):
     typelib = create_type_library(log, bv, export_funcs, config)
     typelib.finalize()
     log.log_info(f"Exported {len(export_funcs)} functions to {config['export_path']}")
-    typelib.write_to_file(config['export_path'])
+    typelib.write_to_file(config["export_path"])

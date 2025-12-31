@@ -6,13 +6,14 @@ from binaryninja import BinaryView, TypeLibrary
 
 
 def get_library_path() -> Optional[str]:
-    library_path = bn.TextLineField("Path to load type library:", "~/Desktop/libcapstone.bntl")
+    library_path = bn.TextLineField(
+        "Path to load type library:", "~/Desktop/libcapstone.bntl"
+    )
     bn.get_form_input([library_path], "Apply Type Library Options")
     res_path = os.path.expanduser(library_path.result)
     if os.path.exists(res_path):
         return res_path
-    else:
-        return None
+    return None
 
 
 def apply_library(bv: BinaryView, typelib_handle: TypeLibrary):
@@ -27,7 +28,7 @@ def apply_library(bv: BinaryView, typelib_handle: TypeLibrary):
 def load_library(bv: BinaryView):
     lib_path = get_library_path()
     if lib_path is None:
-        bn.log_error(f"Supplied path was invalid")
+        bn.log_error("Supplied path was invalid")
         return
     bn.log_debug(f"lib_path: {lib_path}")
     typelib_handle = TypeLibrary.load_from_file(lib_path)
